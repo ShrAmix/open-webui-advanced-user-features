@@ -90,6 +90,7 @@ from open_webui.routers import (
     prompts,
     evaluations,
     tools,
+    translations,
     users,
     utils,
     scim,
@@ -1440,6 +1441,7 @@ app.include_router(
     evaluations.router, prefix="/api/v1/evaluations", tags=["evaluations"]
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
+app.include_router(translations.router, prefix="/api/v1/translations", tags=["translations"])
 
 # SCIM 2.0 API for identity management
 if ENABLE_SCIM:
