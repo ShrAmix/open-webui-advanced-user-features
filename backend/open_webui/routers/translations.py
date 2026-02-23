@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from open_webui.models.users import Users
-from open_webui.utils.auth import get_admin_user, get_verified_user
+from open_webui.utils.auth import get_admin_user
 from open_webui.internal.db import get_session
 from sqlalchemy.orm import Session
 
@@ -18,11 +18,6 @@ KNESS_APP_API_BASE_URL = os.environ.get(
     "KNESS_APP_API_BASE_URL",
     "http://dev-test.kness.team/kness-app-api"
 )
-OPEN_WEB_UI_API_BASE_URL = os.environ.get(
-    "OPEN_WEB_UI_API_BASE_URL",
-    "http://dev-test.kness.team/open_web_ui_api"
-)
-
 
 class TierUpdateRequest(BaseModel):
     email: str
@@ -106,53 +101,3 @@ async def update_admin_subscription(
         raise HTTPException(status_code=502, detail=f"Не вдалося оновити підписку: {str(e)}")
 
 
-############################
-# User: Get my subscription
-############################
-
-
-@router.get("/subscription")
-async def get_my_subscription(
-    user=Depends(get_verified_user),
-):
-    try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            url = f"{KNESS_APP_API_BASE_URL}/api/v1/client/subscription/{user.email}"
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=10), ssl=False) as resp:
-                if resp.status == 200:
-                    response = await resp.json()
-                    return response.get("data", response) if isinstance(response, dict) and "data" in response else response
-                else:
-                    return {"documentTranslation": None}
-    except Exception as e:
-        log.warning(f"Failed to fetch subscription for {user.email}: {e}")
-        return {"documentTranslation": None}
-
-
-############################
-# User: Get my translation history
-############################
-
-
-@router.get("/history")
-async def get_my_translation_history(
-    limit: int = 50,
-    offset: int = 0,
-    user=Depends(get_verified_user),
-):
-    try:
-        async with aiohttp.ClientSession(trust_env=True) as session:
-            url = f"{OPEN_WEB_UI_API_BASE_URL}/deepl/cache/history"
-            params = {
-                "limit": limit,
-                "offset": offset,
-                "email": user.email,
-            }
-            async with session.get(url, params=params, timeout=aiohttp.ClientTimeout(total=10), ssl=False) as resp:
-                if resp.status == 200:
-                    return await resp.json()
-                else:
-                    return {"success": False, "count": 0, "total": 0, "history": []}
-    except Exception as e:
-        log.warning(f"Failed to fetch translation history for {user.email}: {e}")
-        return {"success": False, "count": 0, "total": 0, "history": []}

@@ -10,6 +10,7 @@
 	const i18n = getContext('i18n');
 
 	import { capitalizeFirstLetter, formatFileSize } from '$lib/utils';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import DocumentPage from '$lib/components/icons/DocumentPage.svelte';
@@ -85,8 +86,34 @@
 				</div>
 			</button>
 
-			{#if knowledge?.write_access}
-				<div class="flex items-center">
+			<div class="flex items-center">
+				{#if file?.id && file?.status !== 'uploading'}
+					<Tooltip content={$i18n.t('Download')}>
+						<a
+							class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-850 transition"
+							href="{WEBUI_API_BASE_URL}/files/{file.id}/content?attachment=true"
+							download={file?.name ?? file?.meta?.name}
+							on:click|stopPropagation
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="size-3.5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+								/>
+							</svg>
+						</a>
+					</Tooltip>
+				{/if}
+
+				{#if knowledge?.write_access}
 					<Tooltip content={$i18n.t('Delete')}>
 						<button
 							class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-850 transition"
@@ -98,8 +125,8 @@
 							<XMark />
 						</button>
 					</Tooltip>
-				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
 	{/each}
 </div>
