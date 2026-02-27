@@ -132,7 +132,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each filteredSubscriptions as sub}
+				{#each filteredSubscriptions as sub (sub.email)}
 					<tr class="bg-transparent border-b dark:border-gray-850 text-xs">
 						<td class="px-3 py-2.5">
 							<div class="flex items-center gap-2">

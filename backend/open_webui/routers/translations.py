@@ -15,8 +15,7 @@ log = logging.getLogger(__name__)
 router = APIRouter()
 
 KNESS_APP_API_BASE_URL = os.environ.get(
-    "KNESS_APP_API_BASE_URL",
-    "http://dev-test.kness.team/kness-app-api"
+    "KNESS_APP_API_BASE_URL"
 )
 
 class TierUpdateRequest(BaseModel):
@@ -43,13 +42,15 @@ async def get_admin_subscriptions(
     kness_subscriptions = {}
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
-            url = f"{KNESS_APP_API_BASE_URL}/api/v1/client/subscriptions/all"
+            url = f"{KNESS_APP_API_BASE_URL}/v1/client/subscriptions/all"
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=15), ssl=False) as resp:
                 if resp.status == 200:
                     response = await resp.json()
                     items = response.get("data", response) if isinstance(response, dict) else response
                     for item in items:
-                        kness_subscriptions[item["email"]] = item["subscription"]
+                        email = item.get("email", "")
+                        if email and email not in kness_subscriptions:
+                            kness_subscriptions[email] = item["subscription"]
     except Exception as e:
         log.warning(f"Не вдалося отримати підписки з kness-app-api: {e}")
 
@@ -84,7 +85,7 @@ async def update_admin_subscription(
 
     try:
         async with aiohttp.ClientSession(trust_env=True) as session:
-            url = f"{KNESS_APP_API_BASE_URL}/api/v1/client/subscription/{form_data.email}/tier"
+            url = f"{KNESS_APP_API_BASE_URL}/v1/client/subscription/{form_data.email}/tier"
             async with session.post(
                 url,
                 json={"tier": form_data.tier},

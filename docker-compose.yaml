@@ -23,8 +23,8 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
-      - 'KNESS_APP_API_BASE_URL=https://dev-test.kness.team/kness-app-api'
-      - 'OPEN_WEB_UI_API_BASE_URL=https://dev-test.kness.team/open_web_ui_api'
+      - 'KNESS_APP_API_BASE_URL=https://bot.kness.energy/KnessApp'
+      - 'OPEN_WEB_UI_API_BASE_URL=https://bot.kness.energy/openwui-api'
     extra_hosts:
       - host.docker.internal:host-gateway
       - dev-test.kness.team:host-gateway
