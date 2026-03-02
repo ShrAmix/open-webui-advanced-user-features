@@ -8,7 +8,6 @@
 
 	import UserList from './Users/UserList.svelte';
 	import Groups from './Users/Groups.svelte';
-	import Subscriptions from './Users/Subscriptions.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -16,7 +15,7 @@
 	$: {
 		const pathParts = $page.url.pathname.split('/');
 		const tabFromPath = pathParts[pathParts.length - 1];
-		selectedTab = ['overview', 'groups', 'subscriptions'].includes(tabFromPath) ? tabFromPath : 'overview';
+		selectedTab = ['overview', 'groups'].includes(tabFromPath) ? tabFromPath : 'overview';
 	}
 
 	$: if (selectedTab) {
@@ -61,15 +60,14 @@
 		id="users-tabs-container"
 		class="mx-[16px] lg:mx-0 lg:px-[16px] flex flex-row overflow-x-auto gap-2.5 max-w-full lg:gap-1 lg:flex-col lg:flex-none lg:w-50 dark:text-gray-200 text-sm font-medium text-left scrollbar-none"
 	>
-		<button
+		<a
 			id="overview"
-			class="px-0.5 py-1 min-w-fit rounded-lg lg:flex-none flex text-right transition {selectedTab ===
+			href="/admin/users/overview"
+			draggable="false"
+			class="px-0.5 py-1 min-w-fit rounded-lg lg:flex-none flex text-right transition select-none {selectedTab ===
 			'overview'
 				? ''
 				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				goto('/admin/users/overview');
-			}}
 		>
 			<div class=" self-center mr-2">
 				<svg
@@ -84,17 +82,16 @@
 				</svg>
 			</div>
 			<div class=" self-center">{$i18n.t('Overview')}</div>
-		</button>
+		</a>
 
-		<button
+		<a
 			id="groups"
-			class="px-0.5 py-1 min-w-fit rounded-lg lg:flex-none flex text-right transition {selectedTab ===
+			href="/admin/users/groups"
+			draggable="false"
+			class="px-0.5 py-1 min-w-fit rounded-lg lg:flex-none flex text-right transition select-none {selectedTab ===
 			'groups'
 				? ''
 				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				goto('/admin/users/groups');
-			}}
 		>
 			<div class=" self-center mr-2">
 				<svg
@@ -109,34 +106,7 @@
 				</svg>
 			</div>
 			<div class=" self-center">{$i18n.t('Groups')}</div>
-		</button>
-
-		<button
-			id="subscriptions"
-			class="px-0.5 py-1 min-w-fit rounded-lg lg:flex-none flex text-right transition {selectedTab ===
-			'subscriptions'
-				? ''
-				: ' text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'}"
-			on:click={() => {
-				goto('/admin/users/subscriptions');
-			}}
-		>
-			<div class=" self-center mr-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					class="size-4"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M1 3.5A1.5 1.5 0 0 1 2.5 2h11A1.5 1.5 0 0 1 15 3.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 1 12.5v-9ZM2.5 3a.5.5 0 0 0-.5.5V5h12V3.5a.5.5 0 0 0-.5-.5h-11Zm-.5 4v5.5a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5V7H2Zm2 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 4 9Zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 4 11Z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-			</div>
-			<div class=" self-center">Підписки</div>
-		</button>
+		</a>
 	</div>
 
 	<div class="flex-1 mt-1 lg:mt-0 px-[16px] lg:pr-[16px] lg:pl-0 overflow-y-scroll">
@@ -144,8 +114,6 @@
 			<UserList />
 		{:else if selectedTab === 'groups'}
 			<Groups />
-		{:else if selectedTab === 'subscriptions'}
-			<Subscriptions />
 		{/if}
 	</div>
 </div>
