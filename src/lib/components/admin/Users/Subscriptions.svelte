@@ -16,15 +16,42 @@
 	let subscriptions = null;
 	let query = '';
 	let loading = false;
+	let sortKey = '';
+	let sortDir = 1;
+
+	const toggleSort = (key) => {
+		if (sortKey === key) {
+			sortDir = -sortDir;
+		} else {
+			sortKey = key;
+			sortDir = 1;
+		}
+	};
+
+	const getSortValue = (s, key) => {
+		if (key === 'name') return s.name?.toLowerCase() ?? '';
+		if (key === 'tier') return s.subscription?.documentTranslation?.tier ?? '';
+		if (key === 'usage') return s.subscription?.documentTranslation?.used ?? -1;
+		return '';
+	};
 
 	$: filteredSubscriptions = subscriptions
-		? subscriptions.filter((s) => {
-				const q = query.toLowerCase();
-				return (
-					(s.name && s.name.toLowerCase().includes(q)) ||
-					(s.email && s.email.toLowerCase().includes(q))
-				);
-			})
+		? subscriptions
+				.filter((s) => {
+					const q = query.toLowerCase();
+					return (
+						(s.name && s.name.toLowerCase().includes(q)) ||
+						(s.email && s.email.toLowerCase().includes(q))
+					);
+				})
+				.sort((a, b) => {
+					if (!sortKey) return 0;
+					const av = getSortValue(a, sortKey);
+					const bv = getSortValue(b, sortKey);
+					if (av < bv) return -sortDir;
+					if (av > bv) return sortDir;
+					return 0;
+				})
 		: [];
 
 	const loadSubscriptions = async () => {
@@ -123,10 +150,25 @@
 				class="text-xs text-gray-700 uppercase bg-transparent dark:text-gray-200 border-b-2 dark:border-gray-800"
 			>
 				<tr>
-					<th scope="col" class="px-3 py-2">Ім'я</th>
+					<th scope="col" class="px-3 py-2">
+						<button class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white" on:click={() => toggleSort('name')}>
+							Ім'я
+							{#if sortKey === 'name'}{sortDir === 1 ? '↑' : '↓'}{:else}<span class="opacity-30">↕</span>{/if}
+						</button>
+					</th>
 					<th scope="col" class="px-3 py-2">Email</th>
-					<th scope="col" class="px-3 py-2">Тариф</th>
-					<th scope="col" class="px-3 py-2">Використання</th>
+					<th scope="col" class="px-3 py-2">
+						<button class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white" on:click={() => toggleSort('tier')}>
+							Тариф
+							{#if sortKey === 'tier'}{sortDir === 1 ? '↑' : '↓'}{:else}<span class="opacity-30">↕</span>{/if}
+						</button>
+					</th>
+					<th scope="col" class="px-3 py-2">
+						<button class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white" on:click={() => toggleSort('usage')}>
+							Використання
+							{#if sortKey === 'usage'}{sortDir === 1 ? '↑' : '↓'}{:else}<span class="opacity-30">↕</span>{/if}
+						</button>
+					</th>
 					<th scope="col" class="px-3 py-2">Дата скидання</th>
 					<th scope="col" class="px-3 py-2">Дії</th>
 				</tr>
