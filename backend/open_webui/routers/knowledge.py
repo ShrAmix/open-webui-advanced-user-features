@@ -616,7 +616,7 @@ class KnowledgeFileIdForm(BaseModel):
 
 
 @router.post('/{id}/file/add', response_model=Optional[KnowledgeFilesResponse])
-def add_file_to_knowledge_by_id(
+async def add_file_to_knowledge_by_id(
     request: Request,
     id: str,
     form_data: KnowledgeFileIdForm,

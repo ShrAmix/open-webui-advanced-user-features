@@ -1532,7 +1532,7 @@ class ProcessFileForm(BaseModel):
 
 
 @router.post('/process/file')
-def process_file(
+async def process_file(
     request: Request,
     form_data: ProcessFileForm,
     user=Depends(get_verified_user),
