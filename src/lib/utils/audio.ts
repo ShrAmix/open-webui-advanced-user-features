@@ -58,7 +58,8 @@ export class AudioQueue {
 	stop() {
 		this.audio.pause();
 		this.audio.currentTime = 0;
-		this.audio.src = '';
+		this.audio.removeAttribute('src');
+		this.audio.load();
 		this.queue = [];
 		this.current = null;
 		if (this.onStopped) this.onStopped({ event: 'stop', id: this.id });
