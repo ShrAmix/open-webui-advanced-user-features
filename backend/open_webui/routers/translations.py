@@ -8,8 +8,6 @@ from pydantic import BaseModel
 
 from open_webui.models.users import Users
 from open_webui.utils.auth import get_admin_user
-from open_webui.internal.db import get_session
-from sqlalchemy.orm import Session
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -31,10 +29,9 @@ class TierUpdateRequest(BaseModel):
 @router.get("/admin/subscriptions")
 async def get_admin_subscriptions(
     user=Depends(get_admin_user),
-    db: Session = Depends(get_session),
 ):
     # Отримуємо всіх користувачів open-webui
-    result = Users.get_users(filter={}, skip=0, limit=1000, db=db)
+    result = await Users.get_users(filter={}, skip=0, limit=1000)
     all_users = result["users"]
     users_by_email = {u.email: u for u in all_users}
 
