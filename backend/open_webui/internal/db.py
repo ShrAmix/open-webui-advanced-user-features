@@ -324,6 +324,17 @@ def get_session():
 get_db = contextmanager(get_session)
 
 
+def get_db_context(db: Optional[Session] = None):
+    if isinstance(db, Session):
+        yield db
+    else:
+        with get_db() as session:
+            yield session
+
+
+get_db_context = contextmanager(get_db_context)
+
+
 # ============================================================
 # ASYNC ENGINE (used for ALL runtime database operations)
 # ============================================================
