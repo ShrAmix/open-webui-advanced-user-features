@@ -18,6 +18,7 @@
 </script>
 
 <AddTerminalServerModal
+	direct
 	edit
 	bind:show={showConfigModal}
 	{connection}

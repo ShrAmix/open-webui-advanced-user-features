@@ -58,6 +58,34 @@
 		return `${minutes}:${formattedSeconds}`;
 	};
 
+	let wakeLock = null;
+
+	const requestWakeLock = async () => {
+		if ('wakeLock' in navigator) {
+			try {
+				wakeLock = await navigator.wakeLock.request('screen');
+				console.log('Wake Lock acquired');
+
+				wakeLock.addEventListener('release', () => {
+					console.log('Wake Lock released');
+				});
+			} catch (err) {
+				console.log('Wake Lock request failed:', err);
+			}
+		}
+	};
+
+	const releaseWakeLock = async () => {
+		if (wakeLock) {
+			try {
+				await wakeLock.release();
+			} catch (err) {
+				console.log('Wake Lock release failed:', err);
+			}
+			wakeLock = null;
+		}
+	};
+
 	let stream;
 	let speechRecognition;
 
@@ -222,10 +250,12 @@
 			mimeType: mineTypes.find((type) => MediaRecorder.isTypeSupported(type))
 		});
 
-		mediaRecorder.onstart = () => {
+		mediaRecorder.onstart = async () => {
 			console.log('Recording started');
 			loading = false;
 			startDurationCounter();
+
+			await requestWakeLock();
 
 			audioChunks = [];
 			analyseAudio(stream);
@@ -339,6 +369,8 @@
 			speechRecognition.stop();
 		}
 
+		await releaseWakeLock();
+
 		stopDurationCounter();
 		audioChunks = [];
 		visualizerData = Array(VISUALIZER_BUFFER_LENGTH).fill(0);
@@ -359,6 +391,8 @@
 			await mediaRecorder.stop();
 		}
 		clearInterval(durationCounter);
+
+		await releaseWakeLock();
 
 		if (stream) {
 			const tracks = stream.getTracks();
@@ -382,8 +416,15 @@
 		}
 	};
 
+	const handleVisibilityChange = async () => {
+		if (recording && document.visibilityState === 'visible') {
+			await requestWakeLock();
+		}
+	};
+
 	onMount(() => {
 		window.addEventListener('keydown', handleKeyDown);
+		document.addEventListener('visibilitychange', handleVisibilityChange);
 
 		// listen to width changes
 		resizeObserver = new ResizeObserver(() => {
@@ -402,6 +443,8 @@
 
 	onDestroy(() => {
 		window.removeEventListener('keydown', handleKeyDown);
+		document.removeEventListener('visibilitychange', handleVisibilityChange);
+		releaseWakeLock();
 		// remove resize observer
 		resizeObserver.disconnect();
 	});
