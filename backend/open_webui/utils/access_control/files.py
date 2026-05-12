@@ -10,6 +10,7 @@ from open_webui.models.models import Models
 from open_webui.models.access_grants import AccessGrants
 
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 log = logging.getLogger(__name__)
 
